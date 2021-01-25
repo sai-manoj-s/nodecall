@@ -6,6 +6,16 @@ const myPeer = new Peer(undefined, {
   port: '443'
 })
 let myVideoStream;
+
+const shareScreen=()=> {
+  navigator.mediaDevices.getDisplayMedia({ cursor: true }).then(stream => {
+      const screenTrack = stream.getTracks()[0];
+      senders.current.find(sender => sender.track.kind === 'video').replaceTrack(screenTrack);
+      screenTrack.onended = function() {
+          senders.current.find(sender => sender.track.kind === "video").replaceTrack(userStream.current.getTracks()[1]);
+      }
+  })
+}
 const myVideo = document.createElement('video')
 myVideo.muted = true;
 const peers = {}
@@ -22,6 +32,9 @@ navigator.mediaDevices.getUserMedia({
       addVideoStream(video, userVideoStream)
     })
   })
+  
+
+
 
   socket.on('user-connected', userId => {
     connectToNewUser(userId, stream)
